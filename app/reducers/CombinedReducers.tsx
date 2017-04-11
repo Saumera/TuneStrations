@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
-import stuff from './stuff'
+import canvas from './canvas'
 
 export default combineReducers({
-  stuff,
+  canvas,
 })

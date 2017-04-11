@@ -14,8 +14,11 @@ import { createStore, applyMiddleware } from 'redux'
 import app from './reducers/CombinedReducers'
 import theme from './theme'
 
+import { Provider } from 'react-redux'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
+
+import DrawingContainer from './components/DrawingContainer'
 
 // Needed for onTouchTap
 const injectTapEventPlugin = require('react-tap-event-plugin');
@@ -41,9 +44,11 @@ let render = () => {
   var base = document.getElementById('react-app');
   ReactDOM.unmountComponentAtNode(base);
   ReactDOM.render(
+    <Provider store={store}>
     <MuiThemeProvider muiTheme={getMuiTheme(theme)}>
-      <div>Hello derp</div>
-    </MuiThemeProvider>,
+      <DrawingContainer />
+    </MuiThemeProvider>
+    </Provider>,
     base
   );
 }
