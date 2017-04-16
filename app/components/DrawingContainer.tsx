@@ -1,7 +1,7 @@
 import Redux from 'redux'
 import {connect} from 'react-redux'
 import Drawing, {DrawingStateProps, DrawingDispatchProps} from './Drawing'
-import {canvasChange} from '../actions/action'
+import {addDrawingPath, clearDrawing} from '../actions/action'
 
 const mapStateToProps = (state: any, ownProps: any): DrawingStateProps => {
   return {
@@ -11,9 +11,12 @@ const mapStateToProps = (state: any, ownProps: any): DrawingStateProps => {
 
 const mapDispatchToProps = (dispatch: Redux.Dispatch<any>, ownProps: any): DrawingDispatchProps => {
   return {
-    onDrawingChange(change: any): void {
-      dispatch(canvasChange(Date.now()));
+    onPathAdd(path: any): void {
+      dispatch(addDrawingPath(path));
     },
+    onClear(): void {
+      dispatch(clearDrawing());
+    }
   };
 }
 

@@ -8,6 +8,8 @@ declare var module: any;
 
 // Cordova device
 declare var window: any;
+declare var paper: any;
+
 
 import thunk from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
