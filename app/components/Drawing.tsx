@@ -25,19 +25,29 @@ class Drawing extends React.Component<DrawingProps, {}> {
     
     paper.setup(this.ref);
     var tool = new paper.Tool();
-    tool.onMouseDown = function(event: any) {
+
+    tool.onMouseDown = (event: any) => {
+      if (path) {
+        path.selected = false;
+      }
       path = new paper.Path();
       path.strokeColor = 'black';
       path.add(event.point);
     }
-    tool.onMouseDrag = function(event: any) {
+
+    tool.onMouseDrag = (event: any) => {
       path.add(event.point);
     }
-    tool.onMouseUp = function(event: any) {
+
+    tool.onMouseUp = (event: any) => {
+      path.simplify(10);
+      path.fullySelected = true;
       return this.props.onPathAdd(path);
     }
-    console.log("Setup");
-    console.log(ref);
+
+    // TODO: make this not horrifying
+    paper.view.viewSize.width = 1000;
+    paper.view.viewSize.height = 800;
   }
 
   render() {
