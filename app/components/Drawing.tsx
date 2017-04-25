@@ -18,12 +18,14 @@ export interface DrawingProps extends DrawingStateProps, DrawingDispatchProps {}
 class Drawing extends React.Component<DrawingProps, {}> {
   state: any;
   ref: any;
+  paper: any;
 
   onRef(ref: any) {
     this.ref = ref;
     var path: any;
     
-    paper.setup(this.ref);
+    this.paper = new paper.PaperScope();
+    this.paper.setup(this.ref);
     var tool = new paper.Tool();
 
     tool.onMouseDown = (event: any) => {
@@ -46,8 +48,8 @@ class Drawing extends React.Component<DrawingProps, {}> {
     }
 
     // TODO: make this not horrifying
-    paper.view.viewSize.width = 1000;
-    paper.view.viewSize.height = 800;
+    this.paper.view.viewSize.width = 1000;
+    this.paper.view.viewSize.height = 800;
   }
 
   render() {
