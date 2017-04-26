@@ -2,10 +2,11 @@ import Redux from 'redux'
 import {connect} from 'react-redux'
 import Drawing, {DrawingStateProps, DrawingDispatchProps} from './Drawing'
 import {addDrawingPath, clearDrawing} from '../actions/action'
+import * as fabric from 'fabric'
 
 const mapStateToProps = (state: any, ownProps: any): DrawingStateProps => {
   return {
-    canvas: state.canvas,
+    paths: state.drawing,
   };
 }
 

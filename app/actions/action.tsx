@@ -5,10 +5,6 @@ export interface AddPathAction {
 }
 
 export function addDrawingPath(path: any) {
-	// simplify()
-	// Calculate complexity from segments
-	// Return path?
-
 	return {type: 'ADD_PATH', path};
 }
 

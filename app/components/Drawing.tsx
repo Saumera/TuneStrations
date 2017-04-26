@@ -1,11 +1,11 @@
 import * as React from 'react'
 import FlatButton from 'material-ui/FlatButton'
+import 'fabric'
 
-declare var paper: any;
-
+declare let fabric: any;
 
 export interface DrawingStateProps {
-  canvas: any;
+  paths: any[];
 }
 
 export interface DrawingDispatchProps {
@@ -15,41 +15,38 @@ export interface DrawingDispatchProps {
 
 export interface DrawingProps extends DrawingStateProps, DrawingDispatchProps {};
 
+fabric.Object.prototype.objectCaching = false;
+
 class Drawing extends React.Component<DrawingProps, {}> {
-  state: any;
   ref: any;
-  paper: any;
+  canvas: any;
 
   onRef(ref: any) {
     this.ref = ref;
-    var path: any;
-    
-    this.paper = new paper.PaperScope();
-    this.paper.setup(this.ref);
-    var tool = new paper.Tool();
+  }
 
-    tool.onMouseDown = (event: any) => {
-      if (path) {
-        path.selected = false;
-      }
-      path = new paper.Path();
-      path.strokeColor = 'black';
-      path.add(event.point);
+  componentDidMount() {
+    this.canvas = new fabric.Canvas(this.ref, {
+      selection: false,
+      isDrawingMode: true,
+      objectCaching: false,
+      needsItsOwnCache: true,
+    });
+    this.canvas.setWidth(1000);
+    this.canvas.setHeight(800);
+
+    this.canvas.on('path:created', (e: any) => {
+      let path = fabric.util.object.clone(e.path);
+      this.props.onPathAdd(path);
+    });
+  }
+
+  componentWillReceiveProps(nextProps: any) {
+    this.canvas.clear();
+    for (let path of nextProps.paths) {
+      let newPath = fabric.util.object.clone(path);
+      this.canvas.add(newPath);
     }
-
-    tool.onMouseDrag = (event: any) => {
-      path.add(event.point);
-    }
-
-    tool.onMouseUp = (event: any) => {
-      path.simplify(10);
-      path.fullySelected = true;
-      return this.props.onPathAdd(path);
-    }
-
-    // TODO: make this not horrifying
-    this.paper.view.viewSize.width = 1000;
-    this.paper.view.viewSize.height = 800;
   }
 
   render() {
@@ -57,6 +54,8 @@ class Drawing extends React.Component<DrawingProps, {}> {
       <div>
         <canvas 
           ref={this.onRef.bind(this)}
+          width="1000"
+          height="800"
           id="drawing" >
         </canvas>
         <FlatButton onClick={() => this.props.onClear()}>Clear it</FlatButton>

@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Draw yourself a melody in the shape of a bird or whatever",
   "main": "webpack.config.js",
-  "dependencies": {},
+  "dependencies": {
+    "@types/fabric": "^1.5.23",
+    "fabric": "^1.7.11",
+    "prop-types": "^15.5.8"
+  },
   "devDependencies": {
     "@types/material-ui": "^0.16.60",
     "@types/paper": "^0.9.1",
