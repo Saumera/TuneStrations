@@ -20,6 +20,7 @@ const options = {
     contentBase: path.join(__dirname, "app"),
     publicPath: '/',
     port: port,
+    host : '0.0.0.0',
     hot: true,
     quiet: false,
     noInfo: false,

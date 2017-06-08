@@ -21,6 +21,9 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
 import DrawingContainer from './components/DrawingContainer'
+import {example} from './actions/convert'
+
+example();
 
 // Needed for onTouchTap
 const injectTapEventPlugin = require('react-tap-event-plugin');

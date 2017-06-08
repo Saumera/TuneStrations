@@ -6,6 +6,8 @@
   "dependencies": {
     "@types/fabric": "^1.5.23",
     "fabric": "^1.7.11",
+    "midi-writer-js": "^1.4.7",
+    "midiutils": "0.0.4",
     "prop-types": "^15.5.8"
   },
   "devDependencies": {

@@ -11,6 +11,7 @@ export interface DrawingStateProps {
 export interface DrawingDispatchProps {
   onPathAdd: (path: any) => void;
   onClear: () => void;
+  onGenerate: (canvas: any) => void;
 }
 
 export interface DrawingProps extends DrawingStateProps, DrawingDispatchProps {};
@@ -59,6 +60,7 @@ class Drawing extends React.Component<DrawingProps, {}> {
           id="drawing" >
         </canvas>
         <FlatButton onClick={() => this.props.onClear()}>Clear it</FlatButton>
+        <FlatButton onClick={() => this.props.onGenerate(this.canvas)}>Generate</FlatButton>
       </div>
     );
   }
