@@ -2,7 +2,7 @@ import Redux from 'redux'
 import {connect} from 'react-redux'
 import Drawing, {DrawingStateProps, DrawingDispatchProps} from './Drawing'
 import {addDrawingPath, clearDrawing} from '../actions/action'
-import {reduceImage}from '../actions/convert'
+import {generateMIDI} from '../actions/convert'
 import * as fabric from 'fabric'
 
 const mapStateToProps = (state: any, ownProps: any): DrawingStateProps => {
@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch: Redux.Dispatch<any>, ownProps: any): Drawi
       dispatch(clearDrawing());
     },
     onGenerate(canvas: any): void {
-      reduceImage(canvas);
+      generateMIDI(canvas);
     }
   };
 }
