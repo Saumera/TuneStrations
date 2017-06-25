@@ -1,3 +1,7 @@
+import 'fabric'
+
+declare let fabric: any;
+
 
 /** Utility function to create a K:V from a list of strings */
 function strEnum<T extends string>(o: Array<T>): {[K in T]: K} {
@@ -23,3 +27,24 @@ export function makeNoteMatrix(w: number, h: number): NoteMatrix {
 }
 
 export type NoteMatrix = number[][];
+
+
+export function drawNotes(canvas: any, matrix: NoteMatrix) {
+  for (let time = 0; time < matrix.length; time++) {
+    for (let note = 0; note < matrix[0].length; note++) {
+      if (!matrix[time][note]) {
+        continue;
+      }
+      var rect = new fabric.Rect({
+        left: time * 10,
+        top: (60 - note) * 10,
+        width: 10 * matrix[time][note],
+        height: 10,
+        fill: 'black',
+        stroke: 'white',
+        strokeWidth: 1,
+      });
+      canvas.add(rect);
+    }
+  }
+}

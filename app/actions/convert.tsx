@@ -1,18 +1,19 @@
 import {getKeyTranspose, diatonicize} from '../theory/Key'
-import {makeNoteMatrix} from '../theory/Note'
+import {makeNoteMatrix, NoteMatrix} from '../theory/Note'
+import {drawNotes} from '../theory/Note'
+import MidiWriter from '../theory/duckpunch'
 
 declare var require: any;
 
 var MIDIUtils = require('midiutils');
 
-const MidiWriter: any = require('midi-writer-js');
-
 // Given the canvas complexity
 // Returns dimensions of midi data (number of key values, number of event values)
 export function getQuantScale(canvas: any): [number, number] {
   // Take complexity
-  const numKeys = Math.max(Math.sqrt(canvas.complexity()), 12);
-  const numTimes = Math.sqrt(canvas.complexity());
+  const numKeys  = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 88);
+  const numTimes = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 100);
+  console.log(numKeys);
 
   // Get all paths and find the bounding box
   let bounds = {xMin: 99999, xMax: 0, yMin: 999999, yMax: 0};
@@ -33,7 +34,7 @@ export function getQuantScale(canvas: any): [number, number] {
   var boundY = bounds.yMax - bounds.yMin;
   return [
     Math.ceil(numKeys * (canvas.getHeight()/boundY)), 
-    Math.ceil(numTimes * (canvas.getWidth()/boundX))
+    Math.ceil(numTimes * (canvas.getWidth()/boundX)),
   ];
 }
 
@@ -64,7 +65,7 @@ export function getMatrix(canvas: any) {
       let average = Math.floor(sumVal / (pixelCluster.length / 4));
 
       if (average > 0) {
-        matrix[x][y] = 1;
+        matrix[x][scale[1] - y] = 1;
       }
     }
   }
@@ -72,11 +73,30 @@ export function getMatrix(canvas: any) {
   return matrix;
 }
 
+function sustain(matrix:NoteMatrix) {
+  // Accumulate all values right-to-left, stopping when a zero is encountered.
+  for (let time = matrix.length - 1; time > 0; time--) {
+    for (let note = 0; note < matrix[0].length; note++) {
+      if (time % 4 === 3) {
+        continue;
+      }
+      if (matrix[time][note] && matrix[time+1][note]) {
+        matrix[time][note] += matrix[time+1][note];
+        if (matrix[time+1][note]) {
+          matrix[time+1][note] = 0;
+        }
+      }
+    }
+  }
+}
+
 export function generateMIDI(canvas: any) {
   let matrix = getMatrix(canvas);
   let transposeOffset = getKeyTranspose(matrix);
   matrix = diatonicize(matrix, transposeOffset);
-  console.log(matrix);
+  sustain(matrix);
+  drawNotes(canvas, matrix);
+  matrixToMidi(matrix);
   // TODO: make it music now plz
 }
 
@@ -84,22 +104,52 @@ function getNoteName(noteVal: number): string {
   return MIDIUtils.noteNumberToName(noteVal).replace(/-/g, '');
 }
 
-export function example() {
+function getDuration(timeVal: number): string {
+  let durationMap: {[key: number]: string} = {
+    1: '4',
+    2: '2',
+    3: 'd2',
+    4: '1'
+  };
+
+  return durationMap[timeVal];
+}
+
+export function matrixToMidi(matrix: NoteMatrix) {
   const track: any = new MidiWriter.Track();
 
-  track.addEvent([
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'}),
-        new MidiWriter.NoteEvent({pitch: ['C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'D4'], duration: '8'}),
-        new MidiWriter.NoteEvent({pitch: ['E4','D4'], duration: '4'}),
-        new MidiWriter.NoteEvent({pitch: ['C4'], duration: '2'})
-    ], function(event:any, index:any) {
-      return {sequential:true};
+  const C4 = 60;
+  let height = matrix[0].length;
+  let bottom = C4 - Math.round(height / 2);
+
+  for (let measure = 0; measure < matrix.length/4; measure ++) {
+    for (let beat = 0; beat < 4; beat++) {
+      let pitches: any = [];
+      for (let note = 0; note < matrix[0].length; note++) {
+        let time = (4*measure)+beat;
+        if (matrix[time] && matrix[time][note]) {
+          let noteVal = bottom + note;
+          pitches.push({wait: beat, duration: matrix[time][note], pitch: noteVal});
+        }
+      }
     }
-  );
+
+    // TODO PICK UP FROM HERE
+    // - should understand midi spec better
+    // - duckpunch.tsx has terrible hack for doing async midi stuff, not quite finished.
+    // - I'm sorry.
+
+
+    // DOES THIS STILL NEED TO HAPPEN?
+    if (pitches.length === 0) {
+      pitches.push({wait: 0, duration: 4, pitch: ''});
+    }
+    const event = new MidiWriter.NoteEvent({pitch: pitches});
+    console.log(event);
+    track.addEvent(event);
+  }
 
   var write = new MidiWriter.Writer([track]);
   console.log(write.dataUri());
 }
+
