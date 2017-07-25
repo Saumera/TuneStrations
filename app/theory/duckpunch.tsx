@@ -4,9 +4,12 @@ const MidiWriter: any = require('midi-writer-js');
 
 // this.pitch = [{wait: 2, duration: 2, pitch: 60}, ...]
 function buildData() {
+  this.data = [];
+
   const NOTE_ON = this.getNoteOnStatus();
   const NOTE_OFF = this.getNoteOffStatus();
 
+  // Push empty events list. 4 events = 4 quarter measures
   let events: any = [];
   for(let i = 0; i < 5; i++) {
     events.push({
@@ -15,40 +18,54 @@ function buildData() {
     });
   }
 
+  // Add on and off pitches to each event.
   for (let p of this.pitch) {
     events[p.wait].on.push(p.pitch);
     events[p.wait+p.duration].off.push(p.pitch);
   }
 
-  this.data = [];
-  if (this.pitch.length) {
-    console.log(events);
-  }
+  // Construct the actual midi strings.
   for (let i = 0; i < events.length; i++) {
-    let timestamp = MidiWriter.Utils.numberFromBytes(
-      MidiWriter.Constants.HEADER_CHUNK_DIVISION) * i;
+    let tick = MidiWriter.Utils.numberFromBytes(
+      MidiWriter.Constants.HEADER_CHUNK_DIVISION); // 0x0080 = 128
     let e = events[i];
 
-    if (e.on.length) {
-      this.data.concat(timestamp, NOTE_ON);
-      for (let n of e.on) {
-        this.data.concat(n, this.velocity, 0);
+    let onData: any[] = [];
+    for (let i = 0; i < e.on.length; i++) {
+      if (i === 0) {
+        onData = onData.concat(MidiWriter.Utils.numberToVariableLength(tick), NOTE_ON, e.on[i], this.velocity);
+        continue;
       }
-      this.data.pop();
+      onData = onData.concat(0, e.on[i], this.velocity);      
     }
+    this.data = this.data.concat(onData);
     
-
-    if (e.off.length) {
-      this.data.concat(timestamp, NOTE_OFF);
-      for (let n of e.off) {
-        this.data.concat(n, this.velocity, 0);
+    let offData: any[] = [];  
+    for (let i = 0; i < e.off.length; i++) {
+      if (i === 0) {
+        offData = offData.concat(0, NOTE_OFF, e.off[i], this.velocity);
+        continue;
       }
-      this.data.pop();
+      offData = offData.concat(0, e.off[i], this.velocity);
     }
+
+    // TODO: Start here. Figure out issue with note sustain. All notes are currently the same
+    // length, which shouldn't be the case.
+    // 
+    // Could try making a single NoteEvent that builds the entire sequence (prevents measure boundary errors)
+
+    if (i === (events.length - 1)) {
+      continue;
+    }
+  }
+
+  if (this.pitch.length) {
+    console.log(events);
   }
   return this;
 };
 
+// Override existing builddata function
 MidiWriter.NoteEvent.prototype.buildData = buildData;
 
 export default MidiWriter;

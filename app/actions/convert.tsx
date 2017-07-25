@@ -13,7 +13,6 @@ export function getQuantScale(canvas: any): [number, number] {
   // Take complexity
   const numKeys  = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 88);
   const numTimes = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 100);
-  console.log(numKeys);
 
   // Get all paths and find the bounding box
   let bounds = {xMin: 99999, xMax: 0, yMin: 999999, yMax: 0};
@@ -75,7 +74,7 @@ export function getMatrix(canvas: any) {
 
 function sustain(matrix:NoteMatrix) {
   // Accumulate all values right-to-left, stopping when a zero is encountered.
-  for (let time = matrix.length - 1; time > 0; time--) {
+  for (let time = matrix.length - 2; time > 0; time--) {
     for (let note = 0; note < matrix[0].length; note++) {
       if (time % 4 === 3) {
         continue;
@@ -117,6 +116,7 @@ function getDuration(timeVal: number): string {
 
 export function matrixToMidi(matrix: NoteMatrix) {
   const track: any = new MidiWriter.Track();
+  track.setTempo(120);
 
   const C4 = 60;
   let height = matrix[0].length;
@@ -132,21 +132,15 @@ export function matrixToMidi(matrix: NoteMatrix) {
           pitches.push({wait: beat, duration: matrix[time][note], pitch: noteVal});
         }
       }
+      const event = new MidiWriter.NoteEvent({pitch: pitches});
+      console.log(event);
+      track.addEvent(event);
     }
 
     // TODO PICK UP FROM HERE
     // - should understand midi spec better
     // - duckpunch.tsx has terrible hack for doing async midi stuff, not quite finished.
     // - I'm sorry.
-
-
-    // DOES THIS STILL NEED TO HAPPEN?
-    if (pitches.length === 0) {
-      pitches.push({wait: 0, duration: 4, pitch: ''});
-    }
-    const event = new MidiWriter.NoteEvent({pitch: pitches});
-    console.log(event);
-    track.addEvent(event);
   }
 
   var write = new MidiWriter.Writer([track]);
