@@ -76,9 +76,6 @@ function sustain(matrix:NoteMatrix) {
   // Accumulate all values right-to-left, stopping when a zero is encountered.
   for (let time = matrix.length - 2; time > 0; time--) {
     for (let note = 0; note < matrix[0].length; note++) {
-      if (time % 4 === 3) {
-        continue;
-      }
       if (matrix[time][note] && matrix[time+1][note]) {
         matrix[time][note] += matrix[time+1][note];
         if (matrix[time+1][note]) {
@@ -122,28 +119,18 @@ export function matrixToMidi(matrix: NoteMatrix) {
   let height = matrix[0].length;
   let bottom = C4 - Math.round(height / 2);
 
-  for (let measure = 0; measure < matrix.length/4; measure ++) {
-    for (let beat = 0; beat < 4; beat++) {
-      let pitches: any = [];
-      for (let note = 0; note < matrix[0].length; note++) {
-        let time = (4*measure)+beat;
-        if (matrix[time] && matrix[time][note]) {
-          let noteVal = bottom + note;
-          pitches.push({wait: beat, duration: matrix[time][note], pitch: noteVal});
-        }
+  for (let time = 0; time < matrix.length; time++) {
+    let pitches: any = [];
+    for (let note = 0; note < matrix[0].length; note++) {
+      if (matrix[time] && matrix[time][note]) {
+        let noteVal = bottom + note;
+        pitches.push({wait: time, duration: matrix[time][note], pitch: noteVal});
       }
-      const event = new MidiWriter.NoteEvent({pitch: pitches});
-      console.log(event);
-      track.addEvent(event);
     }
-
-    // TODO PICK UP FROM HERE
-    // - should understand midi spec better
-    // - duckpunch.tsx has terrible hack for doing async midi stuff, not quite finished.
-    // - I'm sorry.
+    const event = new MidiWriter.NoteEvent({pitch: pitches});
+    track.addEvent(event);
   }
 
   var write = new MidiWriter.Writer([track]);
   console.log(write.dataUri());
 }
-

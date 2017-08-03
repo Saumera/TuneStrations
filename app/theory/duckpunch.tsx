@@ -10,58 +10,40 @@ function buildData() {
   const NOTE_OFF = this.getNoteOffStatus();
 
   // Push empty events list. 4 events = 4 quarter measures
-  let events: any = [];
-  for(let i = 0; i < 5; i++) {
-    events.push({
-      on: [],
-      off: [],
-    });
-  }
 
-  // Add on and off pitches to each event.
-  for (let p of this.pitch) {
-    events[p.wait].on.push(p.pitch);
-    events[p.wait+p.duration].off.push(p.pitch);
-  }
+  let sortedByOn: any[] = [...this.pitch];
+  sortedByOn
+    .sort((a: any, b: any) => { return a.wait - b.wait});
 
-  // Construct the actual midi strings.
-  for (let i = 0; i < events.length; i++) {
-    let tick = MidiWriter.Utils.numberFromBytes(
-      MidiWriter.Constants.HEADER_CHUNK_DIVISION); // 0x0080 = 128
-    let e = events[i];
+  sortedByOn = sortedByOn
+    .map((a: any) => { return { pitch: a.pitch, wait: a.wait, code: NOTE_ON}});
 
-    let onData: any[] = [];
-    for (let i = 0; i < e.on.length; i++) {
-      if (i === 0) {
-        onData = onData.concat(MidiWriter.Utils.numberToVariableLength(tick), NOTE_ON, e.on[i], this.velocity);
-        continue;
-      }
-      onData = onData.concat(0, e.on[i], this.velocity);      
+  let sortedByOff: any[] = [...this.pitch];
+  sortedByOff
+    .sort((a: any, b: any) => { return (a.wait + a.duration) - (b.wait + b.duration) });
+
+  sortedByOff = sortedByOff
+    .map((a: any) => { return { pitch: a.pitch, wait: a.wait + a.duration, code: NOTE_OFF} });
+
+  let events: any[] = (sortedByOn.concat(sortedByOff));
+  events.sort((a: any, b: any) => { return a.wait - b.wait });
+
+  let tick = MidiWriter.Utils.numberFromBytes(
+    MidiWriter.Constants.HEADER_CHUNK_DIVISION
+  ); // 0x0080 = 128
+
+  var data: any[] = [];
+  for (var i = 0; i < events.length; i++) {
+    var e = events[i];
+    var wait: any = 0;
+    if (i > 0) {
+      wait = e.wait - events[i - 1].wait;
     }
-    this.data = this.data.concat(onData);
-    
-    let offData: any[] = [];  
-    for (let i = 0; i < e.off.length; i++) {
-      if (i === 0) {
-        offData = offData.concat(0, NOTE_OFF, e.off[i], this.velocity);
-        continue;
-      }
-      offData = offData.concat(0, e.off[i], this.velocity);
-    }
-
-    // TODO: Start here. Figure out issue with note sustain. All notes are currently the same
-    // length, which shouldn't be the case.
-    // 
-    // Could try making a single NoteEvent that builds the entire sequence (prevents measure boundary errors)
-
-    if (i === (events.length - 1)) {
-      continue;
-    }
+    wait = MidiWriter.Utils.numberToVariableLength(tick * wait / 4);
+    data = data.concat(wait, e.code, e.pitch, this.velocity);
   }
-
-  if (this.pitch.length) {
-    console.log(events);
-  }
+  this.data = this.data.concat(data);
+  
   return this;
 };
 
