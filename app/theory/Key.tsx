@@ -1,10 +1,16 @@
+/* Some notes here:
+ * We have a couple ways we could move forward from here.  One is that we begin applying
+ * the concept of a groove.  This would give the rhythm some kind of shape.
+
+ * We could also look into applying some kind of harmonic filter or adjuster.
+ * Chord progressions, cadences, etc.
+ */
+
 
 import {NoteMatrix, makeNoteMatrix} from './Note'
 
-// 
 const chromaticIntervals: number[] = [0, 2, 4, 5, 7, 9, 11];
 
-// TODO: Change to be in a given interval
 export function getKeyTranspose(m: NoteMatrix): number {
 	const counters = new Array(12);
 	for (let i = 0; i < 12; i++) {

@@ -7,6 +7,7 @@ declare var require: any;
 
 var MIDIUtils = require('midiutils');
 
+// TODO: figure out why this is shit.  Make it unshit.
 // Given the canvas complexity
 // Returns dimensions of midi data (number of key values, number of event values)
 export function getQuantScale(canvas: any): [number, number] {
@@ -93,7 +94,6 @@ export function generateMIDI(canvas: any) {
   sustain(matrix);
   drawNotes(canvas, matrix);
   matrixToMidi(matrix);
-  // TODO: make it music now plz
 }
 
 function getNoteName(noteVal: number): string {
