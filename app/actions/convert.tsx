@@ -7,16 +7,11 @@ declare var require: any;
 
 var MIDIUtils = require('midiutils');
 
-// TODO: figure out why this is shit.  Make it unshit.
-// Given the canvas complexity
-// Returns dimensions of midi data (number of key values, number of event values)
-export function getQuantScale(canvas: any): [number, number] {
-  // Take complexity
-  const numKeys  = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 88);
-  const numTimes = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 100);
+export type CanvasBounds = {xMin: number, xMax: number, yMin: number, yMax: number};
 
+export function getBounds(canvas: any): CanvasBounds {
   // Get all paths and find the bounding box
-  let bounds = {xMin: 99999, xMax: 0, yMin: 999999, yMax: 0};
+  const bounds = {xMin: 99999, xMax: 0, yMin: 999999, yMax: 0};
   for (let o of canvas.getObjects()) {
     if (o.type !== 'path') {
       continue;
@@ -27,6 +22,17 @@ export function getQuantScale(canvas: any): [number, number] {
     bounds.xMax = Math.max(rect.left + rect.width);
     bounds.yMax = Math.max(rect.top + rect.height);
   }
+  return bounds;
+}
+
+// TODO: figure out why this is shit.  Make it unshit.
+// Given the canvas complexity
+// Returns dimensions of midi data (number of key values, number of event values)
+export function getQuantScale(canvas: any): [number, number, CanvasBounds] {
+  // Take complexity
+  const numKeys  = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 88);
+  const numTimes = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 100);
+  const bounds = getBounds(canvas);
 
   // Scale by bounding box of the complexity to make sure
   // we get enough features
@@ -35,22 +41,23 @@ export function getQuantScale(canvas: any): [number, number] {
   return [
     Math.ceil(numKeys * (canvas.getHeight()/boundY)), 
     Math.ceil(numTimes * (canvas.getWidth()/boundX)),
+    bounds
   ];
 }
 
-export function getMatrix(canvas: any) {
-  const scale = getQuantScale(canvas);
-  const pixelSize = [canvas.getWidth() / scale[0], canvas.getHeight() / scale[1]];
-  const matrix = makeNoteMatrix(scale[0], scale[1]); 
+export function getMatrix(canvas: any): NoteMatrix {
+  const [scaleX, scaleY, bounds] = getQuantScale(canvas);
+  const pixelSize = [canvas.getWidth() / scaleX, canvas.getHeight() / scaleY];
+  const matrix = makeNoteMatrix(scaleX, scaleY); 
 
   const C4 = 60;
-  let top = Math.floor(Math.min(C4 + scale[1] / 2, 127));
+  let top = Math.floor(Math.min(C4 + scaleY / 2, 127));
 
   // Loop through XY pixel clusters
-  for (let x = 0; x < scale[0]; x++) {
+  for (let x = 0; x < scaleX; x++) {
     let notes: string[] = [];
 
-    for (let y = scale[1] - 1; y >= 0; y--) {
+    for (let y = scaleY - 1; y >= 0; y--) {
       const pixelCluster = canvas.getContext("2d").getImageData(
         x * pixelSize[0], 
         y * pixelSize[1], 
@@ -65,7 +72,7 @@ export function getMatrix(canvas: any) {
       let average = Math.floor(sumVal / (pixelCluster.length / 4));
 
       if (average > 0) {
-        matrix[x][scale[1] - y] = 1;
+        matrix[x][scaleY - y] = 1;
       }
     }
   }

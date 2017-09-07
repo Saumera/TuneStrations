@@ -1,4 +1,5 @@
 import 'fabric'
+import {CanvasBounds} from '../actions/convert'
 
 declare let fabric: any;
 
@@ -30,21 +31,34 @@ export type NoteMatrix = number[][];
 
 
 export function drawNotes(canvas: any, matrix: NoteMatrix) {
+  const [pX, pY] = [canvas.getWidth() / matrix.length, canvas.getHeight() / matrix[0].length];
+
   for (let time = 0; time < matrix.length; time++) {
     for (let note = 0; note < matrix[0].length; note++) {
       if (!matrix[time][note]) {
         continue;
       }
       var rect = new fabric.Rect({
-        left: time * 10,
-        top: (60 - note) * 10,
-        width: 10 * matrix[time][note],
-        height: 10,
-        fill: 'black',
-        stroke: 'white',
+        left: time * pX,
+        top: (matrix[0].length - note) * pY,
+        width: pX * matrix[time][note],
+        height: pY,
+        fill: 'blue',
+        stroke: 'grey',
         strokeWidth: 1,
       });
       canvas.add(rect);
     }
   }
+
+  // Draw a baseline at C4
+  const c4Top = (matrix[0].length - 60) * pY;
+  canvas.add(new fabric.Line(
+    [0, c4Top, canvas.getWidth(), c4Top], 
+    {
+      fill: 'grey',
+      stroke: 'grey',
+      strokeWidth: 1,
+      selectable: false
+    }));
 }
