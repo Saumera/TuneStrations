@@ -36,31 +36,38 @@ export function getQuantScale(canvas: any): [number, number, CanvasBounds] {
 
   // Scale by bounding box of the complexity to make sure
   // we get enough features
-  var boundX = bounds.xMax - bounds.xMin;
-  var boundY = bounds.yMax - bounds.yMin;
   return [
-    Math.ceil(numKeys * (canvas.getHeight()/boundY)), 
-    Math.ceil(numTimes * (canvas.getWidth()/boundX)),
+    numKeys, 
+    numTimes,
     bounds
   ];
 }
 
 export function getMatrix(canvas: any): NoteMatrix {
   const [scaleX, scaleY, bounds] = getQuantScale(canvas);
-  const pixelSize = [canvas.getWidth() / scaleX, canvas.getHeight() / scaleY];
   const matrix = makeNoteMatrix(scaleX, scaleY); 
 
   const C4 = 60;
   let top = Math.floor(Math.min(C4 + scaleY / 2, 127));
 
   // Loop through XY pixel clusters
+  // IMPLEMENTATION NOTE: Fabric has a "lower" and "upper" canvas.
+  // The size of the two may differ ("upper" is the expected width/height)
+  // so we do a ratio here since getImageData gets it from the lower canvas.
+  const pxScaleX = canvas.lowerCanvasEl.width / canvas.getWidth();
+  const pxScaleY = canvas.lowerCanvasEl.height / canvas.getHeight();
+  
+  const pixelSize = [
+    Math.ceil((bounds.xMax - bounds.xMin) / scaleX) * Math.round(pxScaleX), 
+    Math.ceil((bounds.yMax - bounds.yMin) / scaleY) * Math.round(pxScaleY)
+  ];
   for (let x = 0; x < scaleX; x++) {
     let notes: string[] = [];
 
     for (let y = scaleY - 1; y >= 0; y--) {
       const pixelCluster = canvas.getContext("2d").getImageData(
-        x * pixelSize[0], 
-        y * pixelSize[1], 
+        (bounds.xMin * pxScaleX + x * pixelSize[0]), 
+        (bounds.yMin * pxScaleY + y * pixelSize[1]), 
         pixelSize[0], 
         pixelSize[1]
       ).data;
@@ -126,17 +133,17 @@ export function matrixToMidi(matrix: NoteMatrix) {
   let height = matrix[0].length;
   let bottom = C4 - Math.round(height / 2);
 
+  let pitches: any = [];
   for (let time = 0; time < matrix.length; time++) {
-    let pitches: any = [];
     for (let note = 0; note < matrix[0].length; note++) {
       if (matrix[time] && matrix[time][note]) {
         let noteVal = bottom + note;
         pitches.push({wait: time, duration: matrix[time][note], pitch: noteVal});
       }
     }
-    const event = new MidiWriter.NoteEvent({pitch: pitches});
-    track.addEvent(event);
   }
+  const event = new MidiWriter.NoteEvent({pitch: pitches});
+  track.addEvent(event);
 
   var write = new MidiWriter.Writer([track]);
   console.log(write.dataUri());

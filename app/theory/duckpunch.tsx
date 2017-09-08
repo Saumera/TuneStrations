@@ -40,7 +40,8 @@ function buildData() {
       wait = e.wait - events[i - 1].wait;
     }
     wait = MidiWriter.Utils.numberToVariableLength(tick * wait / 4);
-    data = data.concat(wait, e.code, e.pitch, this.velocity);
+    let pitch: number = Math.max(Math.min(e.pitch, 127), 0)
+    data = data.concat(wait, e.code, pitch, this.velocity);
   }
   this.data = this.data.concat(data);
   
