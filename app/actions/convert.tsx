@@ -146,5 +146,7 @@ export function matrixToMidi(matrix: NoteMatrix) {
   track.addEvent(event);
 
   var write = new MidiWriter.Writer([track]);
-  console.log(write.dataUri());
+  let midiUrl: any = write.dataUri();
+  window.open(midiUrl);
+  console.log(midiUrl);
 }
