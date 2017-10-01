@@ -2,6 +2,7 @@ import {getKeyTranspose, diatonicize} from '../theory/Key'
 import {makeNoteMatrix, NoteMatrix} from '../theory/Note'
 import {drawNotes} from '../theory/Note'
 import MidiWriter from '../theory/duckpunch'
+import {scheduleNote} from '../audio'
 
 declare var require: any;
 
@@ -37,7 +38,7 @@ export function getQuantScale(canvas: any): [number, number, CanvasBounds] {
   // Scale by bounding box of the complexity to make sure
   // we get enough features
   return [
-    numKeys, 
+    numKeys,
     numTimes,
     bounds
   ];
@@ -45,7 +46,7 @@ export function getQuantScale(canvas: any): [number, number, CanvasBounds] {
 
 export function getMatrix(canvas: any): NoteMatrix {
   const [scaleX, scaleY, bounds] = getQuantScale(canvas);
-  const matrix = makeNoteMatrix(scaleX, scaleY); 
+  const matrix = makeNoteMatrix(scaleX, scaleY);
 
   const C4 = 60;
   let top = Math.floor(Math.min(C4 + scaleY / 2, 127));
@@ -56,9 +57,9 @@ export function getMatrix(canvas: any): NoteMatrix {
   // so we do a ratio here since getImageData gets it from the lower canvas.
   const pxScaleX = canvas.lowerCanvasEl.width / canvas.getWidth();
   const pxScaleY = canvas.lowerCanvasEl.height / canvas.getHeight();
-  
+
   const pixelSize = [
-    Math.ceil((bounds.xMax - bounds.xMin) / scaleX) * Math.round(pxScaleX), 
+    Math.ceil((bounds.xMax - bounds.xMin) / scaleX) * Math.round(pxScaleX),
     Math.ceil((bounds.yMax - bounds.yMin) / scaleY) * Math.round(pxScaleY)
   ];
   for (let x = 0; x < scaleX; x++) {
@@ -66,9 +67,9 @@ export function getMatrix(canvas: any): NoteMatrix {
 
     for (let y = scaleY - 1; y >= 0; y--) {
       const pixelCluster = canvas.getContext("2d").getImageData(
-        (bounds.xMin * pxScaleX + x * pixelSize[0]), 
-        (bounds.yMin * pxScaleY + y * pixelSize[1]), 
-        pixelSize[0], 
+        (bounds.xMin * pxScaleX + x * pixelSize[0]),
+        (bounds.yMin * pxScaleY + y * pixelSize[1]),
+        pixelSize[0],
         pixelSize[1]
       ).data;
 
@@ -139,6 +140,7 @@ export function matrixToMidi(matrix: NoteMatrix) {
       if (matrix[time] && matrix[time][note]) {
         let noteVal = bottom + note;
         pitches.push({wait: time, duration: matrix[time][note], pitch: noteVal});
+        scheduleNote(noteVal, time*0.4, matrix[time][note]*0.4);
       }
     }
   }
