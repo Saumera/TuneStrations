@@ -2,7 +2,8 @@ import {getKeyTranspose, diatonicize} from '../theory/Key'
 import {makeNoteMatrix, NoteMatrix} from '../theory/Note'
 import {drawNotes} from '../theory/Note'
 import MidiWriter from '../theory/duckpunch'
-import {scheduleNote} from '../audio'
+//import {scheduleNote, setInitialTime} from '../audio'
+import {Loop} from '../audio'
 
 declare var require: any;
 
@@ -107,8 +108,10 @@ export function generateMIDI(canvas: any) {
   let transposeOffset = getKeyTranspose(matrix);
   matrix = diatonicize(matrix, transposeOffset);
   sustain(matrix);
+  let loop = new Loop(matrix);
   drawNotes(canvas, matrix);
   matrixToMidi(matrix);
+  loop.scheduleNotes();
 }
 
 function getNoteName(noteVal: number): string {
@@ -140,7 +143,6 @@ export function matrixToMidi(matrix: NoteMatrix) {
       if (matrix[time] && matrix[time][note]) {
         let noteVal = bottom + note;
         pitches.push({wait: time, duration: matrix[time][note], pitch: noteVal});
-        scheduleNote(noteVal, time*0.4, matrix[time][note]*0.4);
       }
     }
   }

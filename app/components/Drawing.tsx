@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Card, { CardHeader, CardActions, CardMedia } from 'material-ui/Card'
 import FlatButton from 'material-ui/FlatButton'
 import 'fabric'
 
@@ -33,8 +34,6 @@ class Drawing extends React.Component<DrawingProps, {}> {
       objectCaching: false,
       needsItsOwnCache: true,
     });
-    this.canvas.setWidth(1000);
-    this.canvas.setHeight(800);
 
     this.canvas.on('path:created', (e: any) => {
       let path = fabric.util.object.clone(e.path);
@@ -53,14 +52,21 @@ class Drawing extends React.Component<DrawingProps, {}> {
   render() {
     return (
       <div>
-        <canvas 
-          ref={this.onRef.bind(this)}
-          width="1000"
-          height="800"
-          id="drawing" >
-        </canvas>
-        <FlatButton onClick={() => this.props.onClear()}>Clear it</FlatButton>
-        <FlatButton onClick={() => this.props.onGenerate(this.canvas)}>Generate</FlatButton>
+        <Card>
+          <CardHeader title="Draw a thing" />
+          <CardMedia>
+            <canvas 
+              ref={this.onRef.bind(this)}
+              width="800"
+              height="600"
+              id="drawing" >
+            </canvas>
+          </CardMedia>
+          <CardActions>
+            <FlatButton onClick={() => this.props.onClear()}>Clear it</FlatButton>
+            <FlatButton onClick={() => this.props.onGenerate(this.canvas)}>Generate</FlatButton>
+          </CardActions>
+        </Card>
       </div>
     );
   }
