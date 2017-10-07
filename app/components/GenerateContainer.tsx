@@ -1,9 +1,11 @@
 import Redux from 'redux'
 import {connect} from 'react-redux'
+import {getPathBounds} from '../inputs/drawing'
 import Generate, {GenerateStateProps, GenerateDispatchProps} from './Generate'
 
 const mapStateToProps = (state: any, ownProps: any): GenerateStateProps => {
   return {
+    bounds: getPathBounds(state.draw),
     noteMatrix: state.generate.noteMatrix,
   };
 }

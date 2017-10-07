@@ -1,14 +1,10 @@
 import NoteMatrix from '../dataTypes/NoteMatrix'
 
-type CanvasBounds = {xMin: number, xMax: number, yMin: number, yMax: number};
+export type CanvasBounds = {xMin: number, xMax: number, yMin: number, yMax: number};
 
-export function getBounds(canvas: any): CanvasBounds {
-  // Get all paths and find the bounding box
+export function getPathBounds(paths: any[]): CanvasBounds {
   const bounds = {xMin: 99999, xMax: 0, yMin: 999999, yMax: 0};
-  for (let o of canvas.getObjects()) {
-    if (o.type !== 'path') {
-      continue;
-    }
+  for (const o of paths.filter((o: any) => { return o.type === 'path' })) {
     const rect = o.getBoundingRect();
     bounds.xMin = Math.min(bounds.xMin, rect.left);
     bounds.yMin = Math.min(bounds.yMin, rect.top);
@@ -24,7 +20,7 @@ function getQuantScale(canvas: any): [number, number, CanvasBounds] {
   // Take complexity
   const numKeys  = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 88);
   const numTimes = Math.min(Math.max(Math.sqrt(canvas.complexity()*16), 12), 100);
-  const bounds = getBounds(canvas);
+  const bounds = getPathBounds(canvas.getObjects());
 
   // Scale by bounding box of the complexity to make sure
   // we get enough features

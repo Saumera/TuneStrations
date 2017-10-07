@@ -1,13 +1,14 @@
 import * as React from 'react'
 import Card, { CardHeader, CardActions, CardMedia } from 'material-ui/Card'
 import FlatButton from 'material-ui/FlatButton'
-import {getBounds} from '../inputs/drawing'
+import {CanvasBounds} from '../inputs/drawing'
 import NoteMatrix from '../dataTypes/NoteMatrix'
 import 'fabric'
 
 declare let fabric: any;
 
 export interface GenerateStateProps {
+  bounds: CanvasBounds;
   noteMatrix: NoteMatrix;
 }
 
@@ -27,13 +28,14 @@ export default class Generate extends React.Component<GenerateProps, {}> {
 
   drawNotes() {
     const noteMatrix: NoteMatrix = this.props.noteMatrix;
-    const bounds = getBounds(this.canvas);
+    const bounds = this.props.bounds;
 
     const [pX, pY] = [
       Math.ceil((bounds.xMax - bounds.xMin) / noteMatrix.width()), 
       Math.ceil((bounds.yMax - bounds.yMin) / noteMatrix.height())
     ];
 
+    console.log(bounds);
     for (let time = 0; time < noteMatrix.width(); time++) {
       for (let note = 0; note < noteMatrix.height(); note++) {
         if (!noteMatrix.get(time, note)) {
