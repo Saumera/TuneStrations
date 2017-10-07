@@ -1,8 +1,12 @@
 import { combineReducers } from 'redux'
 import audio from './audio'
-import drawing from './drawing'
+import draw from './draw'
+import view from './view'
+import generate from './generate'
 
 export default combineReducers({
   audio,
-  drawing,
+  draw,
+  view,
+  generate,
 })

@@ -43,13 +43,17 @@ export class Loop {
         if (this.matrix[time] && this.matrix[time][note]) {
           let noteVal = bottom + note;
           const oscillator = this.audioCtx.createOscillator();
-          oscillator.connect(this.gainNode);
           this.registerOscillator(oscillator);
+          let gainNode = this.audioCtx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(this.gainNode);
 
           oscillator.type = 'triangle'; // sine wave — other values are 'square', 'sawtooth', 'triangle' and 'custom'
           oscillator.frequency.value = this.midiNoteToFrequency(noteVal); // value in hertz
           oscillator.start( startTime + 1 + time*0.4 );
-          oscillator.stop( startTime + 1 + time*0.4 + this.matrix[time][note]*0.4);
+          let stopTime = startTime + 1 + time*0.4 + this.matrix[time][note]*0.4;
+          gainNode.gain.setTargetAtTime(0, stopTime - 0.04, 0.015);
+          oscillator.stop(stopTime);
         }
       }
     }

@@ -1,4 +1,4 @@
-export default function drawing(state: any = [], action: any) {
+export default function draw(state: any = [], action: any) {
   switch (action.type) {
     case 'ADD_PATH':
     	return [...state, action.path];

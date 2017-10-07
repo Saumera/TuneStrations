@@ -1,5 +1,5 @@
 import 'fabric'
-import {getBounds, CanvasBounds} from '../actions/convert'
+import {getBounds, CanvasBounds} from '../actions/generate'
 
 declare let fabric: any;
 
@@ -29,18 +29,12 @@ export function makeNoteMatrix(w: number, h: number): NoteMatrix {
 
 export type NoteMatrix = number[][];
 
+export function copyMatrix(matrix: NoteMatrix): NoteMatrix {
+  return matrix.map((m) => { return m.slice() });
+}
 
 export function drawNotes(canvas: any, matrix: NoteMatrix) {
   const bounds = getBounds(canvas);
-  canvas.add(new fabric.Rect({
-    left: bounds.xMin,
-    top: bounds.yMin,
-    width: (bounds.xMax - bounds.xMin),
-    height: (bounds.yMax - bounds.yMin),
-    stroke: 'orange',
-    fill: 'transparent',
-    strokeWidth: 1,
-  }));
 
   const [pX, pY] = [
     Math.ceil((bounds.xMax - bounds.xMin) / matrix.length), 
@@ -63,19 +57,5 @@ export function drawNotes(canvas: any, matrix: NoteMatrix) {
       });
       canvas.add(rect);
     }
-  }
-
-  // Draw a baseline at C4 and additional octave lines
-  const C4 = Math.round(matrix[0].length / 2);
-  for (let note = (C4 % 12); note < matrix[0].length; note += 12) {
-    const top = bounds.yMin + (matrix[0].length - note) * pY;
-    canvas.add(new fabric.Line(
-      [0, top, canvas.getWidth(), top], 
-      {
-        fill: 'grey',
-        stroke: 'grey',
-        strokeWidth: (note === C4) ? 3 : 1,
-        selectable: false
-      }));
   }
 }

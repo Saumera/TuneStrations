@@ -5,21 +5,21 @@ import 'fabric'
 
 declare let fabric: any;
 
-export interface DrawingStateProps {
+export interface DrawStateProps {
   paths: any[];
 }
 
-export interface DrawingDispatchProps {
+export interface DrawDispatchProps {
   onPathAdd: (path: any) => void;
   onClear: () => void;
   onGenerate: (canvas: any) => void;
 }
 
-export interface DrawingProps extends DrawingStateProps, DrawingDispatchProps {};
+export interface DrawProps extends DrawStateProps, DrawDispatchProps {};
 
 fabric.Object.prototype.objectCaching = false;
 
-class Drawing extends React.Component<DrawingProps, {}> {
+class Draw extends React.Component<DrawProps, {}> {
   ref: any;
   canvas: any;
 
@@ -51,7 +51,7 @@ class Drawing extends React.Component<DrawingProps, {}> {
 
   render() {
     return (
-      <div>
+      <div className="card-content-canvas-container">
         <Card>
           <CardHeader title="Draw a thing" />
           <CardMedia>
@@ -59,6 +59,7 @@ class Drawing extends React.Component<DrawingProps, {}> {
               ref={this.onRef.bind(this)}
               width="800"
               height="600"
+              style={{border: "1px solid #bbb"}}
               id="drawing" >
             </canvas>
           </CardMedia>
@@ -73,4 +74,4 @@ class Drawing extends React.Component<DrawingProps, {}> {
 }
 
 
-export default Drawing;
+export default Draw;

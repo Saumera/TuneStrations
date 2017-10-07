@@ -8,6 +8,7 @@ import {
 import {fade} from 'material-ui/utils/colorManipulator';
 import spacing from 'material-ui/styles/spacing';
 
+/*
 let theme: any = {
   spacing: spacing,
   fontFamily: 'MinionPro, serif',
@@ -80,8 +81,8 @@ let theme: any = {
 
     backgroundColorPrimary: '#FFFFFF',
     backgroundColorAccent: 'rgb(220, 220, 220)',
-    backgroundColorInteractive: 'rgba(255, 255, 255, 0.7)', /* Clickable */
-    backgroundColorActive: 'rgba(255, 255, 255, 0.9)', /* Clicked */
+    backgroundColorInteractive: 'rgba(255, 255, 255, 0.7)', 
+    backgroundColorActive: 'rgba(255, 255, 255, 0.9)',
     backgroundColorDarkPrimary: 'rgb(20, 20, 20)',
     backgroundColorDarkAccent: 'rgb(60, 60, 60)',
     backgroundColorDarkInteractive: 'rgba(0, 0, 0, 0.7)',
@@ -89,5 +90,6 @@ let theme: any = {
     backgroundColorSurgePrimary: '#CC0000',
   }
 };
+*/
 
-export default theme
+//export default theme

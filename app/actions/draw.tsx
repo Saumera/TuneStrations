@@ -1,4 +1,3 @@
-
 export interface AddPathAction {
 	type: 'ADD_PATH'
 	path: any;

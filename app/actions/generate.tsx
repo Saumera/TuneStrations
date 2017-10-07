@@ -1,8 +1,10 @@
+import * as Redux from 'redux'
 import {getKeyTranspose, diatonicize} from '../theory/Key'
 import {makeNoteMatrix, NoteMatrix} from '../theory/Note'
-import {drawNotes} from '../theory/Note'
+import {drawNotes, copyMatrix} from '../theory/Note'
 import MidiWriter from '../theory/duckpunch'
 //import {scheduleNote, setInitialTime} from '../audio'
+import {changeView} from '../actions/view'
 import {Loop} from '../audio'
 
 declare var require: any;
@@ -89,29 +91,45 @@ export function getMatrix(canvas: any): NoteMatrix {
   return matrix;
 }
 
-function sustain(matrix:NoteMatrix) {
+function sustain(matrix: NoteMatrix) {
+  const newMatrix = copyMatrix(matrix);
+
   // Accumulate all values right-to-left, stopping when a zero is encountered.
-  for (let time = matrix.length - 2; time > 0; time--) {
-    for (let note = 0; note < matrix[0].length; note++) {
-      if (matrix[time][note] && matrix[time+1][note]) {
-        matrix[time][note] += matrix[time+1][note];
-        if (matrix[time+1][note]) {
-          matrix[time+1][note] = 0;
+  for (let time = newMatrix.length - 2; time > 0; time--) {
+    for (let note = 0; note < newMatrix[0].length; note++) {
+      if (newMatrix[time][note] && newMatrix[time+1][note]) {
+        newMatrix[time][note] += newMatrix[time+1][note];
+        if (newMatrix[time+1][note]) {
+          newMatrix[time+1][note] = 0;
         }
       }
     }
   }
+
+  return newMatrix;
+}
+
+export interface SetGeneratedMatrixAction {
+  type: 'SET_GENERATED_MATRIX';
+  noteMatrix: NoteMatrix;
+}
+
+export function createNoteMatrix(canvas: any) {
+  let noteMatrix: NoteMatrix = generateMIDI(canvas);
+  return (dispatch: Redux.Dispatch<any>) => {
+    dispatch({type: 'SET_GENERATED_MATRIX', noteMatrix});
+    dispatch(changeView("generate"));
+  };
 }
 
 export function generateMIDI(canvas: any) {
   let matrix = getMatrix(canvas);
   let transposeOffset = getKeyTranspose(matrix);
-  matrix = diatonicize(matrix, transposeOffset);
-  sustain(matrix);
-  let loop = new Loop(matrix);
-  drawNotes(canvas, matrix);
-  matrixToMidi(matrix);
-  loop.scheduleNotes();
+  return sustain(diatonicize(matrix, transposeOffset));
+  //let loop = new Loop(matrix);
+  //drawNotes(canvas, matrix);
+  //matrixToMidi(matrix);
+  //loop.scheduleNotes();
 }
 
 function getNoteName(noteVal: number): string {

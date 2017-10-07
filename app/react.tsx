@@ -21,7 +21,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import MidiWriter from './theory/duckpunch'
 
-import DrawingContainer from './components/DrawingContainer'
+import MainContainer from './components/MainContainer'
 
 // Needed for onTouchTap
 const injectTapEventPlugin = require('react-tap-event-plugin');
@@ -49,7 +49,7 @@ let render = () => {
   ReactDOM.render(
     <Provider store={store}>
     <MuiThemeProvider muiTheme={getMuiTheme(theme)}>
-      <DrawingContainer />
+      <MainContainer />
     </MuiThemeProvider>
     </Provider>,
     base
