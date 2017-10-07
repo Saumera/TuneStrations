@@ -1,4 +1,4 @@
-import {NoteMatrix} from './theory/Note'
+import NoteMatrix from '../dataTypes/NoteMatrix'
 
 export class Loop {
   private audioCtx: any;
@@ -34,13 +34,13 @@ export class Loop {
   scheduleNotes() {
 
     const C4 = 60;
-    let bottom = C4 - Math.round(this.matrix[0].length / 2);
+    let bottom = C4 - Math.round(this.matrix.height() / 2);
 
     const startTime = this.audioCtx.currentTime;
 
-    for (let time = 0; time < this.matrix.length; time++) {
-      for (let note = 0; note < this.matrix[0].length; note++) {
-        if (this.matrix[time] && this.matrix[time][note]) {
+    for (let time = 0; time < this.matrix.width(); time++) {
+      for (let note = 0; note < this.matrix.height(); note++) {
+        if (this.matrix.get(time, note)) {
           let noteVal = bottom + note;
           const oscillator = this.audioCtx.createOscillator();
           this.registerOscillator(oscillator);
@@ -51,7 +51,7 @@ export class Loop {
           oscillator.type = 'triangle'; // sine wave — other values are 'square', 'sawtooth', 'triangle' and 'custom'
           oscillator.frequency.value = this.midiNoteToFrequency(noteVal); // value in hertz
           oscillator.start( startTime + 1 + time*0.4 );
-          let stopTime = startTime + 1 + time*0.4 + this.matrix[time][note]*0.4;
+          let stopTime = startTime + 1 + time*0.4 + this.matrix.get(time, note)*0.4;
           gainNode.gain.setTargetAtTime(0, stopTime - 0.04, 0.015);
           oscillator.stop(stopTime);
         }

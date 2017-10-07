@@ -19,7 +19,6 @@ import theme from './theme'
 import { Provider } from 'react-redux'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import MidiWriter from './theory/duckpunch'
 
 import MainContainer from './components/MainContainer'
 

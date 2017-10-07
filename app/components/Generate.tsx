@@ -1,7 +1,8 @@
 import * as React from 'react'
 import Card, { CardHeader, CardActions, CardMedia } from 'material-ui/Card'
 import FlatButton from 'material-ui/FlatButton'
-import {NoteMatrix} from '../theory/Note'
+import {getBounds} from '../inputs/drawing'
+import NoteMatrix from '../dataTypes/NoteMatrix'
 import 'fabric'
 
 declare let fabric: any;
@@ -24,13 +25,42 @@ export default class Generate extends React.Component<GenerateProps, {}> {
     this.ref = ref;
   }
 
+  drawNotes() {
+    const noteMatrix: NoteMatrix = this.props.noteMatrix;
+    const bounds = getBounds(this.canvas);
+
+    const [pX, pY] = [
+      Math.ceil((bounds.xMax - bounds.xMin) / noteMatrix.width()), 
+      Math.ceil((bounds.yMax - bounds.yMin) / noteMatrix.height())
+    ];
+
+    for (let time = 0; time < noteMatrix.width(); time++) {
+      for (let note = 0; note < noteMatrix.height(); note++) {
+        if (!noteMatrix.get(time, note)) {
+          continue;
+        }
+        var rect = new fabric.Rect({
+          left: bounds.xMin + time * pX,
+          top: bounds.yMin + (noteMatrix.height() - note) * pY,
+          width: pX * noteMatrix.get(time, note),
+          height: pY,
+          fill: 'blue',
+          stroke: 'grey',
+          strokeWidth: 1,
+        });
+        this.canvas.add(rect);
+      }
+    }
+  }
+
   componentDidMount() {
     this.canvas = new fabric.Canvas(this.ref, {
       selection: false,
-        isDrawingMode: false,
-        objectCaching: true,
-        needsItsOwnCache: true
-    })
+      isDrawingMode: false,
+      objectCaching: true,
+      needsItsOwnCache: true
+    });
+    this.drawNotes()
   }
 
   render() {

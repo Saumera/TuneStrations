@@ -1,4 +1,4 @@
-import {NoteMatrix} from '../theory/Note'
+import NoteMatrix from '../dataTypes/NoteMatrix'
 
 export interface GenerateState {
   noteMatrix?: NoteMatrix
