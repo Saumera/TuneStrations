@@ -3,6 +3,7 @@ import {drawingToMatrix} from '../inputs/drawing'
 import {diatonicize} from '../modifiers/basic'
 import NoteMatrix from '../dataTypes/NoteMatrix'
 import {changeView} from '../actions/view'
+//import {Loop} from '../outputs/audio'
 
 declare var require: any;
 
@@ -13,7 +14,7 @@ function sustain(matrix: NoteMatrix) {
   for (let time = newMatrix.width() - 2; time > 0; time--) {
     for (let note = 0; note < newMatrix.height() ; note++) {
       if (newMatrix.get(time, note) && newMatrix.get(time+1, note)) {
-        newMatrix.set(time, note, newMatrix.get(time+1, note));
+        newMatrix.set(time, note, newMatrix.get(time, note) + newMatrix.get(time+1, note));
         if (newMatrix.get(time+1, note)) {
           newMatrix.set(time+1, note, 0);
         }
@@ -31,6 +32,8 @@ export interface SetGeneratedMatrixAction {
 
 export function createNoteMatrix(canvas: any) {
   let noteMatrix: NoteMatrix = sustain(diatonicize(drawingToMatrix(canvas)));
+  //let loop = new Loop(noteMatrix);
+  //loop.scheduleNotes()
   return (dispatch: Redux.Dispatch<any>) => {
     dispatch({type: 'SET_GENERATED_MATRIX', noteMatrix});
     dispatch(changeView("generate"));
