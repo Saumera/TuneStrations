@@ -32,7 +32,7 @@ export default class NoteMatrix {
   }
 
   setData(data: number[][]) {
-    this.data = data
+    this.data = data.map(datum => datum.slice())
   }
 
   getData(): number[][] {
@@ -45,3 +45,5 @@ export default class NoteMatrix {
     return matrix;
   }
 }
+
+export const EmptyMatrix = new NoteMatrix(0, 0);

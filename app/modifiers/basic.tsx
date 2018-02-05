@@ -1,4 +1,5 @@
 import NoteMatrix from '../dataTypes/NoteMatrix'
+import { Modifier } from '../dataTypes/Modifier'
 
 const chromaticIntervals: number[] = [0, 2, 4, 5, 7, 9, 11];
 
@@ -32,6 +33,25 @@ function getKeyTranspose(m: NoteMatrix): number {
   return maxIdx;
 }
 
+export function legato(matrix: NoteMatrix) {
+  const newMatrix = matrix.copy();
+
+  // Accumulate all values right-to-left, stopping when a zero is encountered.
+  for (let time = newMatrix.width() - 2; time > 0; time--) {
+    for (let note = 0; note < newMatrix.height() ; note++) {
+      if (newMatrix.get(time, note) && newMatrix.get(time+1, note)) {
+        newMatrix.set(time, note, newMatrix.get(time, note) + newMatrix.get(time+1, note));
+        if (newMatrix.get(time+1, note)) {
+          newMatrix.set(time+1, note, 0);
+        }
+      }
+    }
+  }
+
+  return newMatrix;
+}
+
+
 export function diatonicize(matrix: NoteMatrix): NoteMatrix {
   const offset: number = getKeyTranspose(matrix);
   let newMatrix: NoteMatrix = new NoteMatrix(matrix.width(), matrix.height());
@@ -52,3 +72,8 @@ export function diatonicize(matrix: NoteMatrix): NoteMatrix {
 
   return newMatrix;
 }
+
+export const modifierMap: {[key: string]: Modifier} = {
+  diatonicize,
+  legato
+};

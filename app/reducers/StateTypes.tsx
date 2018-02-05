@@ -1,1 +1,1 @@
-export type viewType = "draw" | "generate";
+export type viewType = "draw" | "modify" | "finalize";

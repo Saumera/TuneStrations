@@ -7,8 +7,18 @@ div.canvas-container {
     margin: 0 auto;
 }
 
+div.make-me-flex {
+  display: flex;
+  flex-direction: row;
+}
+
+div.toolbar {
+  flex: 0;
+  padding: 20px;
+}
+
 div.card-content-canvas-container {
-    width: 840px;
+    flex: 1;
     margin: 0 auto;
     padding: 20px;
 }

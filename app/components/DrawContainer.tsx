@@ -2,7 +2,7 @@ import Redux from 'redux'
 import {connect} from 'react-redux'
 import Draw, {DrawStateProps, DrawDispatchProps} from './Draw'
 import {addDrawingPath, clearDrawing} from '../actions/draw'
-import {createNoteMatrix} from '../actions/generate'
+import {createSourceMatrix} from '../actions/matrix'
 import {changeView} from '../actions/view'
 
 const mapStateToProps = (state: any, ownProps: any): DrawStateProps => {
@@ -20,8 +20,8 @@ const mapDispatchToProps = (dispatch: Redux.Dispatch<any>, ownProps: any): DrawD
       dispatch(clearDrawing());
     },
     onGenerate(canvas: any): void {
-      dispatch(createNoteMatrix(canvas));
-      dispatch(changeView("generate"))
+      dispatch(createSourceMatrix(canvas));
+      dispatch(changeView("modify"))
     }
   };
 }
