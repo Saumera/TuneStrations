@@ -15,7 +15,7 @@ export interface DrawDispatchProps {
   onGenerate: (canvas: any) => void;
 }
 
-export interface DrawProps extends DrawStateProps, DrawDispatchProps {};
+export interface DrawProps extends DrawStateProps, DrawDispatchProps {}
 
 fabric.Object.prototype.objectCaching = false;
 

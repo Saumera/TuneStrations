@@ -61,7 +61,7 @@ export default class Modify extends React.Component<ModifyProps, {}> {
   }
 
   componentDidMount() {
-    this.canvas = new fabric.Canvas(this.ref, {
+    this.canvas = new fabric.StaticCanvas(this.ref, {
       selection: false,
       isDrawingMode: false,
       objectCaching: true,

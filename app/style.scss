@@ -12,6 +12,10 @@ div.make-me-flex {
   flex-direction: row;
 }
 
+div.make-my-children-flex > div {
+  flex: 1;
+}
+
 div.toolbar {
   flex: 0;
   padding: 20px;

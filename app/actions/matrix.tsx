@@ -1,9 +1,5 @@
-import Redux from 'redux'
 import {drawingToMatrix} from '../inputs/drawing'
-import {diatonicize, legato} from '../modifiers/basic'
 import NoteMatrix from '../dataTypes/NoteMatrix'
-import {changeView} from '../actions/view'
-import {Loop} from '../outputs/audio'
 
 declare var require: any;
 

@@ -39,6 +39,10 @@ export default class NoteMatrix {
     return this.data;
   }
 
+  isEmpty(): boolean {
+    return this.data.length === 0;
+  }
+
   copy(): NoteMatrix {
     const matrix = new NoteMatrix(0, 0);
     matrix.setData(this.data);
